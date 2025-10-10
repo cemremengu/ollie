@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
 )
 
 const systemPath = "/usr/share/ollama/.ollama/models"
@@ -25,4 +27,32 @@ func getOllamaModelsPath() (string, error) {
 		}
 	}
 	return modelPath, nil
+}
+
+// getOllamaUIDGID looks up the ollama user and group and returns their UID and GID.
+// If the ollama user or group is not found, it returns -1 for both (indicating no chown should occur).
+func getOllamaUIDGID() (int, int, error) {
+	ollamaUser, err := user.Lookup("ollama")
+	if err != nil {
+		// If ollama user doesn't exist, don't change ownership
+		return -1, -1, nil
+	}
+
+	ollamaGroup, err := user.LookupGroup("ollama")
+	if err != nil {
+		// If ollama group doesn't exist, don't change ownership
+		return -1, -1, nil
+	}
+
+	uid, err := strconv.Atoi(ollamaUser.Uid)
+	if err != nil {
+		return -1, -1, fmt.Errorf("failed to parse UID: %w", err)
+	}
+
+	gid, err := strconv.Atoi(ollamaGroup.Gid)
+	if err != nil {
+		return -1, -1, fmt.Errorf("failed to parse GID: %w", err)
+	}
+
+	return uid, gid, nil
 }

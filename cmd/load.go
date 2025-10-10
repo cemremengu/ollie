@@ -16,6 +16,11 @@ import (
 
 // extractTarball extracts a tarball to the specified destination directory
 func extractTarball(fileName, destPath string) error {
+	// Get ollama user/group ownership
+	uid, gid, err := getOllamaUIDGID()
+	if err != nil {
+		return fmt.Errorf("failed to get ollama user/group: %w", err)
+	}
 	// Open the tarball file
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -66,12 +71,25 @@ func extractTarball(fileName, destPath string) error {
 			if err := os.MkdirAll(targetPath, os.ModePerm); err != nil {
 				return fmt.Errorf("failed to create directory %s: %w", targetPath, err)
 			}
+			// Set ownership to ollama:ollama if user/group exists
+			if uid != -1 && gid != -1 {
+				if err := os.Chown(targetPath, uid, gid); err != nil {
+					return fmt.Errorf("failed to set ownership for directory %s: %w", targetPath, err)
+				}
+			}
 			continue
 		}
 
 		// Create parent directories for files
-		if err := os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
+		parentDir := filepath.Dir(targetPath)
+		if err := os.MkdirAll(parentDir, os.ModePerm); err != nil {
 			return fmt.Errorf("failed to create parent directory for %s: %w", targetPath, err)
+		}
+		// Set ownership on parent directory
+		if uid != -1 && gid != -1 {
+			if err := os.Chown(parentDir, uid, gid); err != nil {
+				return fmt.Errorf("failed to set ownership for parent directory %s: %w", parentDir, err)
+			}
 		}
 
 		// Create and write file
@@ -85,6 +103,13 @@ func extractTarball(fileName, destPath string) error {
 			return fmt.Errorf("failed to write file %s: %w", targetPath, err)
 		}
 		outFile.Close()
+
+		// Set ownership on the file
+		if uid != -1 && gid != -1 {
+			if err := os.Chown(targetPath, uid, gid); err != nil {
+				return fmt.Errorf("failed to set ownership for file %s: %w", targetPath, err)
+			}
+		}
 	}
 
 	return nil
