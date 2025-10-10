@@ -1,31 +1,35 @@
-name: Go Release Binaries
+name: goreleaser
 
 on:
+  pull_request:
   push:
+    # run only against tags
     tags:
-      - 'v*'
-  release:
-    types: [created]
+      - "*"
+
+permissions:
+  contents: write
+  # packages: write
+  # issues: write
+  # id-token: write
 
 jobs:
-  releases-matrix:
-    name: Release Go Binary
+  goreleaser:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [linux, windows, darwin]
-        goarch: [amd64, arm64]
-        exclude:
-          - goos: windows
-            goarch: arm64
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Go Release Binaries
-        uses: wangyoucao577/go-release-action@v1.53
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: ${{ matrix.goos }}
-          goarch: ${{ matrix.goarch }}
-          project_path: "."
-          binary_name: "ollie"
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
