@@ -16,7 +16,8 @@ var rootCmd = &cobra.Command{
 	Long: `Ollie is a command-line interface tool that provides utility functions
 for working with Ollama. It offers various commands to make your Ollama
 experience more convenient and efficient.`,
-	Version: version,
+	Version:       version,
+	SilenceErrors: true,
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},
@@ -26,7 +27,7 @@ experience more convenient and efficient.`,
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }

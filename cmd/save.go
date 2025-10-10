@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 // ModelName represents the parsed components of an Ollama model name
@@ -200,6 +201,11 @@ Examples:
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		modelNameStr := args[0]
+
+		// Check if stdout is a terminal
+		if term.IsTerminal(int(os.Stdout.Fd())) {
+			return fmt.Errorf("refusing to write binary tarball to terminal\nPlease redirect output to a file: ollie save %s > output.tar", modelNameStr)
+		}
 
 		// Parse model name
 		modelName, err := parseModelName(modelNameStr)
