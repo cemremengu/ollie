@@ -17,6 +17,9 @@ var rootCmd = &cobra.Command{
 for working with Ollama. It offers various commands to make your Ollama
 experience more convenient and efficient.`,
 	Version: version,
+	CompletionOptions: cobra.CompletionOptions{
+		DisableDefaultCmd: true,
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
