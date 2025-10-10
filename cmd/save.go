@@ -40,11 +40,11 @@ type Manifest struct {
 //   - model
 func parseModelName(name string) (*ModelName, error) {
 	patterns := []string{
-		`^(?P<host>[^/]+)/(?P<namespace>[^/]+)/(?P<model>[^:]+):(?P<tag>.+)$`,  // host/namespace/model:tag
-		`^(?P<namespace>[^/]+)/(?P<model>[^:]+):(?P<tag>.+)$`,                   // namespace/model:tag
-		`^(?P<namespace>[^/]+)/(?P<model>[^:]+)$`,                               // namespace/model
-		`^(?P<model>[^:]+):(?P<tag>.+)$`,                                        // model:tag
-		`^(?P<model>[^:]+)$`,                                                    // model
+		`^(?P<host>[^/]+)/(?P<namespace>[^/]+)/(?P<model>[^:]+):(?P<tag>.+)$`, // host/namespace/model:tag
+		`^(?P<namespace>[^/]+)/(?P<model>[^:]+):(?P<tag>.+)$`,                 // namespace/model:tag
+		`^(?P<namespace>[^/]+)/(?P<model>[^:]+)$`,                             // namespace/model
+		`^(?P<model>[^:]+):(?P<tag>.+)$`,                                      // model:tag
+		`^(?P<model>[^:]+)$`,                                                  // model
 	}
 
 	for _, pattern := range patterns {
@@ -230,8 +230,4 @@ Examples:
 
 		return nil
 	},
-}
-
-func init() {
-	rootCmd.AddCommand(saveCmd)
 }
