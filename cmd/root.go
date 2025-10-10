@@ -27,11 +27,3 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-
-func init() {
-	// Here you can define flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// Example: rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ollie.yaml)")
-}

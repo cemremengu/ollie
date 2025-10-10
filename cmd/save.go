@@ -231,3 +231,7 @@ Examples:
 		return nil
 	},
 }
+
+func init() {
+	rootCmd.AddCommand(saveCmd)
+}
