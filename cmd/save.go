@@ -208,13 +208,9 @@ Examples:
 		}
 
 		// Get model path from environment or use default
-		modelPath := os.Getenv("OLLAMA_MODELS")
-		if modelPath == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return fmt.Errorf("failed to get home directory: %w", err)
-			}
-			modelPath = filepath.Join(home, ".ollama", "models")
+		modelPath, err := getOllamaModelsPath()
+		if err != nil {
+			return err
 		}
 
 		// Get file paths
