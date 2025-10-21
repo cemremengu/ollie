@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -26,6 +27,7 @@ func getOllamaModelsPath() (string, error) {
 			modelPath = filepath.Join(home, ".ollama", "models")
 		}
 	}
+	slog.Info("Using Ollama models path", "path", modelPath)
 	return modelPath, nil
 }
 

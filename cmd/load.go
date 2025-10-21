@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,7 +20,7 @@ func extractTarball(fileName, destPath string) error {
 	// Get ollama user/group ownership
 	uid, gid, err := getOllamaUIDGID()
 	if err != nil {
-		return fmt.Errorf("failed to get ollama user/group: %w", err)
+		slog.Warn("failed to get ollama UID/GID, proceeding without chown", "error", err)
 	}
 	// Open the tarball file
 	file, err := os.Open(fileName)
@@ -50,7 +51,8 @@ func extractTarball(fileName, destPath string) error {
 	} else if strings.HasSuffix(fileName, ".tar") {
 		tarReader = tar.NewReader(file)
 	} else {
-		return fmt.Errorf("unsupported file extension for %s", fileName)
+		slog.Info("unrecognized file extension, assuming uncompressed tar")
+		tarReader = tar.NewReader(file)
 	}
 
 	// Extract files from the tarball
@@ -74,7 +76,7 @@ func extractTarball(fileName, destPath string) error {
 			// Set ownership to ollama:ollama if user/group exists
 			if uid != -1 && gid != -1 {
 				if err := os.Chown(targetPath, uid, gid); err != nil {
-					return fmt.Errorf("failed to set ownership for directory %s: %w", targetPath, err)
+					slog.Warn("failed to set ownership for directory", "dir", targetPath, "error", err)
 				}
 			}
 			continue
@@ -107,7 +109,7 @@ func extractTarball(fileName, destPath string) error {
 		// Set ownership on the file
 		if uid != -1 && gid != -1 {
 			if err := os.Chown(targetPath, uid, gid); err != nil {
-				return fmt.Errorf("failed to set ownership for file %s: %w", targetPath, err)
+				slog.Warn("failed to set ownership for file", "file", targetPath, "error", err)
 			}
 		}
 	}
